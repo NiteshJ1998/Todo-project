@@ -4,6 +4,7 @@ const connectDB = require("./config/db");
 const todoRoutes = require("./routes/todoRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 const authRoutes = require("./routes/authRoutes");
+const authController = require("./controllers/authControllers");
 
 const app = express();
 

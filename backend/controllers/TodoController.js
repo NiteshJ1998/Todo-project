@@ -9,21 +9,27 @@ const getTodos = async (req, res) => {
   }
 };
 
-const addTodo = async (req, res) => {
+// Create todo for logged-in user
+const createTodo = async (req, res) => {
   try {
-    const todo = new Todo({ text: req.body.text });
+    const todo = new Todo({
+      title: req.body.title,
+      completed: req.body.completed || false,
+      user: req.userId, // 👈 link todo to user
+    });
     await todo.save();
-    res.json(todo);
+    res.status(201).json(todo);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
+// Update todo
 const updateTodo = async (req, res) => {
   try {
-    const todo = await Todo.findByIdAndUpdate(
-      req.params.id,
-      { completed: req.body.completed },
+    const todo = await Todo.findOneAndUpdate(
+      { _id: req.params.id, user: req.userId }, // only update if it belongs to user
+      req.body,
       { new: true }
     );
     res.json(todo);
@@ -31,19 +37,14 @@ const updateTodo = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
+// Delete todo
 const deleteTodo = async (req, res) => {
   try {
-    await Todo.findByIdAndDelete(req.params.id);
+    await Todo.findOneAndDelete({ _id: req.params.id, user: req.userId });
     res.json({ message: "Todo deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-module.exports = {
-  getTodos,
-  addTodo,
-  updateTodo,
-  deleteTodo,
-};
+module.exports = { getTodos, createTodo, updateTodo, deleteTodo };
